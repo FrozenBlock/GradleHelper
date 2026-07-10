@@ -12,7 +12,13 @@ interface WithAccessWidener {
 
     fun accessWidener(file: File) = accessWidener(project.provider { file })
 
-    fun accessWidener(project: Project) = accessWidener(project.mod.id.map { project.file("src/main/resources/$it.accesswidener") })
+    fun accessWidener(project: Project) =
+        accessWidener(
+            project.mod.id.map {
+                val classTweaker = project.file("src/main/resources/$it.classtweaker")
+                if (classTweaker.exists()) classTweaker else project.file("src/main/resources/$it.accesswidener")
+            },
+        )
 
     fun accessWidener() = accessWidener(project)
 }

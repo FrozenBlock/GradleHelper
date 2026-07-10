@@ -7,23 +7,34 @@ internal fun String.trimComments(): String {
     return substring(0, indexOf('#'))
 }
 
-internal fun parseEntry(statements: List<String>): AccessWidener.Entry {
-    val modifier =
-        AccessWidener.Modifier.valueOf(
-            statements[0].uppercase().replace("TRANSITIVE-", ""),
-        )
-    val target = AccessWidener.Target.valueOf(statements[1].uppercase())
-    val className = statements[2]
+internal fun parseEntry(statements: List<String>): ClassTweaker.Entry {
+    val directive = statements[0].lowercase().removePrefix("transitive-")
 
-    return when (target) {
-        AccessWidener.Target.CLASS -> AccessWidener.ClassEntry(modifier, className)
-        AccessWidener.Target.METHOD -> AccessWidener.MethodEntry(modifier, className, statements[3], statements[4])
-        AccessWidener.Target.FIELD -> AccessWidener.FieldEntry(modifier, className, statements[3], statements[4])
+    return when (directive) {
+        "inject-interface" -> {
+            ClassTweaker.InjectInterfaceEntry(statements[1], statements[2])
+        }
+
+        "extend-enum" -> {
+            ClassTweaker.ExtendEnumEntry(statements[1], statements[2])
+        }
+
+        else -> {
+            val modifier = ClassTweaker.Modifier.valueOf(directive.uppercase())
+            val target = ClassTweaker.Target.valueOf(statements[1].uppercase())
+            val className = statements[2]
+
+            when (target) {
+                ClassTweaker.Target.CLASS -> ClassTweaker.ClassEntry(modifier, className)
+                ClassTweaker.Target.METHOD -> ClassTweaker.MethodEntry(modifier, className, statements[3], statements[4])
+                ClassTweaker.Target.FIELD -> ClassTweaker.FieldEntry(modifier, className, statements[3], statements[4])
+            }
+        }
     }
 }
 
-fun parseAccessWidener(file: File): AccessWidener {
-    if (!file.exists()) error("unable to find access widener file '$file'")
+fun parseClassTweaker(file: File): ClassTweaker {
+    if (!file.exists()) error("unable to find class tweaker file '$file'")
     val lines =
         file
             .readLines()
@@ -34,5 +45,5 @@ fun parseAccessWidener(file: File): AccessWidener {
 
     val entries = lines.subList(1, lines.size).map(::parseEntry)
 
-    return AccessWidener(entries)
+    return ClassTweaker(entries)
 }

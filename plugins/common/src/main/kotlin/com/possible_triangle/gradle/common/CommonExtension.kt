@@ -1,6 +1,7 @@
 package com.possible_triangle.gradle.common
 
 import com.possible_triangle.gradle.access.generateAccessTransformer
+import com.possible_triangle.gradle.access.generateInterfaceInjectionData
 import com.possible_triangle.gradle.features.loaders.*
 import com.possible_triangle.gradle.mod
 import com.possible_triangle.gradle.property
@@ -55,6 +56,15 @@ internal open class CommonExtensionImpl(
             dependsOn(task)
         }
         accessTransformer(output)
+
+        val (interfacesOutput, interfacesTask) = project.generateInterfaceInjectionData(file)
+        project.tasks.withType<CreateMinecraftArtifacts> {
+            dependsOn(interfacesTask)
+        }
+        project.tasks.named("copyInterfaceInjectionDataPublications") {
+            dependsOn(interfacesTask)
+        }
+        injectInterfaces(interfacesOutput)
     }
 
     override fun injectInterfaces(file: Provider<File>) {

@@ -3,19 +3,22 @@ package com.possible_triangle.gradle.access
 /**
  * credits to [isXander/modstitch](https://github.com/isXander/modstitch/blob/master/src/main/kotlin/dev/isxander/modstitch/util/AccessWidener.kt)
  */
-data class AccessWidener(
+data class ClassTweaker(
     val entries: List<Entry>,
 ) {
     sealed interface Entry {
+        val className: String
+    }
+
+    sealed interface AccessEntry : Entry {
         val target: Target
         val modifier: Modifier
-        val className: String
     }
 
     data class ClassEntry(
         override val modifier: Modifier,
         override val className: String,
-    ) : Entry {
+    ) : AccessEntry {
         override val target = Target.CLASS
     }
 
@@ -24,7 +27,7 @@ data class AccessWidener(
         override val className: String,
         val name: String,
         val descriptor: String,
-    ) : Entry {
+    ) : AccessEntry {
         override val target = Target.METHOD
     }
 
@@ -33,9 +36,19 @@ data class AccessWidener(
         override val className: String,
         val name: String,
         val descriptor: String,
-    ) : Entry {
+    ) : AccessEntry {
         override val target = Target.FIELD
     }
+
+    data class InjectInterfaceEntry(
+        override val className: String,
+        val interfaceName: String,
+    ) : Entry
+
+    data class ExtendEnumEntry(
+        override val className: String,
+        val constantName: String,
+    ) : Entry
 
     enum class Modifier {
         ACCESSIBLE,

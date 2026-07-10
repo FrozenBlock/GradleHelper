@@ -1,25 +1,27 @@
 package com.possible_triangle.gradle.access
 
-internal fun AccessWidener.Modifier.transform(): String =
+import com.google.gson.GsonBuilder
+
+internal fun ClassTweaker.Modifier.transform(): String =
     when (this) {
-        AccessWidener.Modifier.ACCESSIBLE -> "public"
-        AccessWidener.Modifier.MUTABLE -> "public-f"
-        AccessWidener.Modifier.EXTENDABLE -> "protected-f"
+        ClassTweaker.Modifier.ACCESSIBLE -> "public"
+        ClassTweaker.Modifier.MUTABLE -> "public-f"
+        ClassTweaker.Modifier.EXTENDABLE -> "protected-f"
     }
 
 fun String.remapNotation() = replace('/', '.')
 
-fun AccessWidener.toAccessTransformer(remapper: Remapper = Remapper.empty()): String {
+fun ClassTweaker.toAccessTransformer(remapper: Remapper = Remapper.empty()): String {
     val transformed =
-        entries.map {
+        entries.filterIsInstance<ClassTweaker.AccessEntry>().map {
             val modifier = it.modifier.transform()
             val className = remapper.remapClass(it.className).remapNotation()
 
             val additional =
                 when (it) {
-                    is AccessWidener.ClassEntry -> emptyList()
-                    is AccessWidener.FieldEntry -> listOf(remapper.remapField(it.className, it.name), "# ${it.name}")
-                    is AccessWidener.MethodEntry -> listOf(remapper.remapMethod(it.className, it.name, it.descriptor), "# ${it.name}")
+                    is ClassTweaker.ClassEntry -> emptyList()
+                    is ClassTweaker.FieldEntry -> listOf(remapper.remapField(it.className, it.name), "# ${it.name}")
+                    is ClassTweaker.MethodEntry -> listOf(remapper.remapMethod(it.className, it.name, it.descriptor), "# ${it.name}")
                 }
 
             listOf(modifier, className) + additional
@@ -27,4 +29,13 @@ fun AccessWidener.toAccessTransformer(remapper: Remapper = Remapper.empty()): St
 
     val lines = transformed.map { it.joinToString(" ") }
     return lines.joinToString("\n")
+}
+
+fun ClassTweaker.toInterfaceInjectionData(remapper: Remapper = Remapper.empty()): String {
+    val byClass =
+        entries
+            .filterIsInstance<ClassTweaker.InjectInterfaceEntry>()
+            .groupBy({ remapper.remapClass(it.className) }, { it.interfaceName })
+
+    return GsonBuilder().setPrettyPrinting().create().toJson(byClass)
 }

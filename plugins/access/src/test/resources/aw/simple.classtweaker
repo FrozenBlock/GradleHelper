@@ -1,0 +1,10 @@
+classTweaker v2 named
+
+accessible class com/example/TestClass
+accessible method com/example/TestClass methodName ()V
+mutable field com/example/TestClass fieldName V
+
+inject-interface com/example/TestClass com/example/InjectedInterface
+transitive-inject-interface com/example/TestClass com/example/OtherInjectedInterface
+
+extend-enum com/example/TestEnum EXAMPLE_CONSTANT

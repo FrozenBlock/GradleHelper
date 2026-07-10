@@ -41,15 +41,4 @@ internal open class FabricExtensionImpl(
     override fun accessWidener(file: Provider<File>) {
         project.the<LoomGradleExtensionAPI>().accessWidenerPath.set { file.get() }
     }
-
-    /*
-    TODO Needs a transformer into an access-widener/class-tweaker
-    override fun injectInterfaces(file: Provider<File>) {
-        project.tasks.withType<Jar> {
-            filesMatching("fabric.mod.json") {
-                filter(AddInterfaceInjections::class, "from" to file.get())
-            }
-        }
-    }
-     */
 }

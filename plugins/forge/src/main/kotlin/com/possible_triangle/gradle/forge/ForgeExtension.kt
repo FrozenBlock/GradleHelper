@@ -1,6 +1,7 @@
 package com.possible_triangle.gradle.forge
 
 import com.possible_triangle.gradle.access.generateAccessTransformer
+import com.possible_triangle.gradle.access.generateInterfaceInjectionData
 import com.possible_triangle.gradle.features.loaders.*
 import com.possible_triangle.gradle.property
 import com.possible_triangle.gradle.stringProperty
@@ -63,6 +64,16 @@ internal open class ForgeExtensionImpl(
         }
         project.tasks.named("copyAccessTransformersPublications") {
             dependsOn(task)
+        }
+
+        val (interfacesOutput, interfacesTask) = project.generateInterfaceInjectionData(file)
+        injectInterfaces(interfacesOutput)
+
+        project.tasks.withType<CreateMinecraftArtifacts> {
+            dependsOn(interfacesTask)
+        }
+        project.tasks.named("copyInterfaceInjectionDataPublications") {
+            dependsOn(interfacesTask)
         }
     }
 

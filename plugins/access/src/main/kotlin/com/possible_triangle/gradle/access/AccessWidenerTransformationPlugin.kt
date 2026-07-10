@@ -12,8 +12,11 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import java.io.File
 
 private const val TRANSFORM_TASK = "transformAccessWidener"
+private const val INTERFACE_INJECTION_TASK = "generateInterfaceInjectionData"
 
 private fun Project.generatedAccessTransformer() = layout.buildDirectory.file("accesstransformer.cfg").map { it.asFile }
+
+private fun Project.generatedInterfaceInjectionData() = layout.buildDirectory.file("interface_injection.json").map { it.asFile }
 
 fun Project.generateAccessTransformer(from: Provider<File>): Pair<Provider<File>, TaskProvider<Task>> {
     val output = generatedAccessTransformer()
@@ -26,8 +29,16 @@ fun Project.generateAccessTransformer(from: Provider<File>): Pair<Provider<File>
             inputs.file(from)
 
             doLast {
-                val accessWidener = parseAccessWidener(from.get())
-                val transformed = accessWidener.toAccessTransformer(remapper)
+                val classTweaker = parseClassTweaker(from.get())
+
+                classTweaker.entries.filterIsInstance<ClassTweaker.ExtendEnumEntry>().forEach {
+                    logger.warn(
+                        "Ignoring 'extend-enum' entry for ${it.className}#${it.constantName}: " +
+                            "enum extension is only supported on Fabric, not on Forge/NeoForge",
+                    )
+                }
+
+                val transformed = classTweaker.toAccessTransformer(remapper)
                 output.get().writeText(transformed)
             }
         }
@@ -45,6 +56,26 @@ fun Project.generateAccessTransformer(from: Provider<File>): Pair<Provider<File>
     }
 
     return output to transformAccessWidener
+}
+
+fun Project.generateInterfaceInjectionData(from: Provider<File>): Pair<Provider<File>, TaskProvider<Task>> {
+    val output = generatedInterfaceInjectionData()
+
+    val remapper = detectMappings()
+    val generateInterfaceInjectionData =
+        tasks.register(INTERFACE_INJECTION_TASK) {
+            remapper.configureTask(this)
+            outputs.file(output)
+            inputs.file(from)
+
+            doLast {
+                val classTweaker = parseClassTweaker(from.get())
+                val transformed = classTweaker.toInterfaceInjectionData(remapper)
+                output.get().writeText(transformed)
+            }
+        }
+
+    return output to generateInterfaceInjectionData
 }
 
 @Suppress("unused")
