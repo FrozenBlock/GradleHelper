@@ -47,13 +47,13 @@ class GradleHelperFabricPlugin : LoaderPlugin() {
             named("client") {
                 client()
                 displayName = "Fabric Client"
-                runDirectory = file("run")
+                runDirectory = project.layout.projectDirectory.dir("run")
             }
 
             named("server") {
                 server()
                 displayName = "Fabric Server"
-                runDirectory = file("run/server")
+                runDirectory = project.layout.projectDirectory.dir("run/server")
             }
 
             create("data")

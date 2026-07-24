@@ -2,6 +2,7 @@ package com.possible_triangle.gradle.fabric
 
 import com.possible_triangle.gradle.mod
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.the
 
 internal fun Project.configureDatagenRun() {
@@ -11,10 +12,10 @@ internal fun Project.configureDatagenRun() {
         loom.runs {
             named("data") {
                 client()
-                displayName.set("Fabric Datagen")
-                runDirectory.set(file("run/data"))
+                displayName = "Fabric Datagen"
+                runDirectory = project.layout.projectDirectory.dir("run/data")
 
-                systemProperties.put("fabric-api.datagen", "")
+                systemProperties.put("fabric-api.datagen", "true")
                 systemProperties.put("fabric-api.datagen.output-dir", "${config.datagenOutput}")
                 systemProperties.put("fabric-api.datagen.modid", mod.id.get())
                 systemProperties.put("porting_lib.datagen.existing_resources", "${config.existingResources}")
@@ -23,7 +24,7 @@ internal fun Project.configureDatagenRun() {
                 }
 
                 config.datagenSourceSet.orNull?.let {
-                    sourceSet.set(it.name)
+                    sourceSet = it.name
                 }
             }
         }
