@@ -84,6 +84,19 @@ fun Project.publish() {
                     }
                 }
             }
+
+            val mavenUrl = env["MAVEN_URL"]
+            val mavenUsername = env["MAVEN_USERNAME"]
+            val mavenPassword = env["MAVEN_PASSWORD"]
+            if (mavenUrl != null && mavenUsername != null && mavenPassword != null) {
+                maven(mavenUrl) {
+                    name = "frozenblock"
+                    credentials {
+                        username = mavenUsername
+                        password = mavenPassword
+                    }
+                }
+            }
         }
 
         publications.withType<MavenPublication> {
