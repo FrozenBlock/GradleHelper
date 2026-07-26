@@ -231,11 +231,10 @@ val generateReleaseMetadata =
 tasks.register("publishAll") {
     pluginProjects {
         val isHelper = project.name == "helper"
-        if (isHelper && (isSnapshot || !isRelease)) return@pluginProjects
 
         dependsOn(tasks["publish"])
 
-        if (!isSnapshot) {
+        if (!isSnapshot && (!isHelper || isRelease)) {
             dependsOn(tasks["publishPlugins"])
         }
     }
