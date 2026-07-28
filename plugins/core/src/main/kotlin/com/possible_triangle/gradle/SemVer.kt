@@ -7,7 +7,7 @@ data class SemVer(
 ) {
     companion object {
         fun parse(value: String): SemVer {
-            val parts = value.split(".").map { it.toInt() }
+            val parts = value.split(".").map { it.takeWhile(Char::isDigit).toInt() }
             if (parts.size < 2) error("illegal version format '$value'")
             return SemVer(
                 major = parts[0],
