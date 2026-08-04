@@ -1,6 +1,5 @@
 package com.possible_triangle.gradle
 
-import com.possible_triangle.gradle.upload.baseNameConvention
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.BasePluginExtension
@@ -75,7 +74,8 @@ internal fun Project.configureJarTasks() {
 }
 
 internal fun Project.configureBaseName() {
+    // frozenblock: no version/suffix, use archiveClassifier instead
     configure<BasePluginExtension> {
-        archivesName.set(project.baseNameConvention())
+        archivesName.set(mod.versionStrategy.map { it.artifactName(modImpl) })
     }
 }

@@ -29,6 +29,10 @@ class GradleHelperCorePlugin : Plugin<Project> {
         setupUpload()
         setupReleaseMetadata()
 
+        afterEvaluate {
+            version = mod.versionStrategy.get().artifactVersion(modImpl)
+        }
+
         tasks.withType<Jar> {
             exclude(".cache")
             exclude("**/*.bbmodel")

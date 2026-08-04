@@ -141,6 +141,10 @@ private fun Project.createConfigurations(
 fun Project.configureCommonProject() {
     addLoaderAttribute("common")
 
+    tasks.named<Jar>("jar") {
+        archiveClassifier.set("common")
+    }
+
     createConfigurations(resolvable = false)
 }
 
@@ -193,6 +197,10 @@ fun Project.configureLoaderProject(
     val loaderName = loader.name.lowercase()
     addLoaderAttribute(loaderName)
     project.modImpl.loader.set(loaderName)
+
+    tasks.named<Jar>("jar") {
+        archiveClassifier.set(loaderName)
+    }
 
     val (resources, code) = createConfigurations(resolvable = true)
 
