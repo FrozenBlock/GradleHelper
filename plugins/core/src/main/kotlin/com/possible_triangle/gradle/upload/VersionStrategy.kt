@@ -9,7 +9,8 @@ import org.gradle.api.provider.Provider
 
 private fun Project.moduleSuffix(): String {
     if (this == coreProject) return ""
-    return "-${project.name.lowercase()}"
+    // frozenblock uses gradle project prefixes to work around gradle composite build usage with multiloader projects
+    return "-${projectDir.name.lowercase()}"
 }
 
 interface VersionStrategy {
@@ -86,12 +87,27 @@ class WithLoader(
     override fun artifactName(mod: ModVersionProperties): String = "${inner.artifactName(mod)}-${mod.loaderName}"
 }
 
+class FrozenBlockVersionStrategy : VersionStrategy {
+    override fun artifactVersion(mod: ModVersionProperties): String {
+        var version = "${modVersion(mod)}-mc${mod.minecraftVersion.get()}"
+
+        if (mod.releaseType.get() != "release") {
+            version += "-unstable"
+        }
+
+        return version
+    }
+
+    override fun baseName(mod: ModVersionProperties): String = "${artifactName(mod)}-${artifactVersion(mod)}"
+}
+
 internal fun parseVersionStrategy(id: String): VersionStrategy =
     when (id.lowercase()) {
         "simple" -> SimpleVersionStrategy()
         "suffix_minecraft_version" -> WithMinecraftVersion(SimpleVersionStrategy())
         "with_minecraft_version" -> WithMinecraftVersion(SimpleVersionStrategy())
         "with_loader" -> WithLoader(SimpleVersionStrategy())
+        "frozenblock" -> FrozenBlockVersionStrategy()
         else -> error("unknown version strategy '$id'")
     }
 

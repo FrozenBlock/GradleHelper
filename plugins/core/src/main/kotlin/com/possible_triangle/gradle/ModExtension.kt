@@ -27,6 +27,7 @@ interface ModVersionProperties {
     val version: Provider<String>
     val minecraftVersion: Provider<String>
     val loader: Provider<String>
+    val releaseType: Provider<String>
 }
 
 interface ModExtension {

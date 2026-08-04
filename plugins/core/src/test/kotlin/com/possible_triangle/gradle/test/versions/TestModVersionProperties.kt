@@ -8,9 +8,11 @@ internal class TestModVersionProperties(
     minecraftVersion: String = "1.21.1",
     id: String = "test_mod",
     loader: String = "loader",
+    releaseType: String = "release",
 ) : ModVersionProperties {
     override val id = DefaultProvider { id }
     override val version = DefaultProvider { version }
     override val minecraftVersion = DefaultProvider { minecraftVersion }
     override val loader = DefaultProvider { loader }
+    override val releaseType = DefaultProvider { releaseType }
 }
