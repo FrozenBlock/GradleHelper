@@ -26,7 +26,7 @@ class GradleHelperSettingsPlugin : Plugin<Settings> {
                     val strategy = config.versionStrategy.get()
                     if (strategy == ResolutionStrategy.NONE) return@eachPlugin
 
-                    if (requested.version == null && requested.id.namespace == "com.possible-triangle") {
+                    if (requested.version == null && requested.id.namespace == "net.frozenblock.triangle") {
                         val snapshotVersion = strategy.versionOf(BuildParameters.MAJOR_VERSION, requested.id)
                         logger.info("resolving $snapshotVersion for ${requested.id.name}")
                         useVersion(snapshotVersion)
