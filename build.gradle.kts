@@ -28,6 +28,7 @@ val isSnapshot = env["SNAPSHOT"] == "true"
 val isRelease = env["RELEASE"] == "true"
 val patch = env["PATCH"] ?: "999"
 val pluginVersion = "$majorVersion.$patch"
+val useRunNumberVersion = env["SNAPSHOT_RUN_NUMBER"] == "true"
 
 allprojects {
     repositories {
@@ -67,7 +68,12 @@ fun Project.publish() {
     extra["snapshot"] = isSnapshot
     extra["isDev"] = !isCI
 
-    version = if (isSnapshot) "$majorVersion-SNAPSHOT" else pluginVersion
+    version =
+        when {
+            isSnapshot && useRunNumberVersion -> pluginVersion
+            isSnapshot -> "$majorVersion-SNAPSHOT"
+            else -> pluginVersion
+        }
 
     configure<PublishingExtension> {
         repositories {

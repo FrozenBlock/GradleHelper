@@ -49,6 +49,11 @@ jobs:
       - name: Publish Snapshot
         run: ./gradlew publishAll
 
+      - name: Publish Snapshot (run number version)
+        run: ./gradlew publishAll
+        env:
+          SNAPSHOT_RUN_NUMBER: true
+
       - uses: actions/upload-artifact@v7
         if: always()
         with:
