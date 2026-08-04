@@ -15,6 +15,7 @@ env:
   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
   MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
   SNAPSHOT: true
+  PATCH: ${{ github.run_number }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
