@@ -17,7 +17,7 @@ class GradleHelperSettingsPlugin : Plugin<Settings> {
         target.pluginManagement {
             repositories {
                 maven {
-                    url = URI("https://registry.somethingcatchy.net/repository/maven-public/")
+                    url = URI("https://maven.frozenblock.net/snapshot")
                 }
             }
 
