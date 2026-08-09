@@ -128,11 +128,13 @@ private fun Project.createConfigurations(
 
     configureDatagen(datagenOutput, resources.name)
 
-    artifacts {
-        mainSourceSet.java.sourceDirectories.files
-            .forEach { add(code.name, it) }
-        mainSourceSet.resources.sourceDirectories.files
-            .forEach { add(resources.name, it) }
+    afterEvaluate {
+        artifacts {
+            mainSourceSet.java.sourceDirectories.files
+                .forEach { add(code.name, it) }
+            mainSourceSet.resources.sourceDirectories.files
+                .forEach { add(resources.name, it) }
+        }
     }
 
     return resources to code
