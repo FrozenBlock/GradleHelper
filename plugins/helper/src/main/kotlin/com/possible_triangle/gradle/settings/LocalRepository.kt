@@ -50,13 +50,22 @@ fun Settings.localRepository(
     }
 
     if (multi && candlelight) {
+        val group = dependencySub.substringBefore(":")
+        val artifactBase = dependencySub.substringAfter(":")
+
         gradle.rootProject {
             subprojects {
                 val suffix = suffixes.find { project.name.endsWith("-$it") }
-                if (suffix != null) {
+                if (suffix == "fabric" || suffix == "neoforge") {
                     afterEvaluate {
-                        tasks.findByName("compileJava")?.dependsOn(
-                            gradle.includedBuild(repo).task(":$prefix-$suffix:candleLightTransform"),
+                        configurations.findByName("compileClasspath")?.exclude(
+                            mapOf("group" to group, "module" to "$artifactBase-$suffix"),
+                        )
+                        dependencies.add(
+                            "compileOnly",
+                            dependencies.project(
+                                mapOf("path" to ":$prefix-$suffix", "configuration" to "rawClassesElements"),
+                            ),
                         )
                     }
                 }

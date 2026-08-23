@@ -148,6 +148,23 @@ fun Project.configureCommonProject() {
     }
 
     createConfigurations(resolvable = false)
+
+    createRawClassesElements()
+}
+
+private fun Project.createRawClassesElements() {
+    val rawClassesElements = configurations.register("rawClassesElements") {
+        isCanBeResolved = false
+        isCanBeConsumed = true
+    }
+    // "api" isn't created yet at the point loader/common projects are configured, so defer
+    // wiring it in until the rest of this project's configuration has run.
+    afterEvaluate {
+        configurations.findByName("api")?.let { api -> rawClassesElements.configure { extendsFrom(api) } }
+    }
+    artifacts {
+        add(rawClassesElements.name, tasks.named<JavaCompile>("compileJava").flatMap { it.destinationDirectory })
+    }
 }
 
 val LOADER_ATTRIBUTE = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
@@ -216,7 +233,7 @@ fun Project.configureLoaderProject(
 
     lazyDependencies("compileOnly") {
         config.dependsOn.forEach {
-            add(it)
+            add(dependencies.project(path = it.path, configuration = "rawClassesElements"))
         }
     }
 
@@ -241,6 +258,8 @@ fun Project.configureLoaderProject(
         dependsOn(code)
         source(code)
     }
+
+    createRawClassesElements()
 }
 
 enum class ModLoader {
