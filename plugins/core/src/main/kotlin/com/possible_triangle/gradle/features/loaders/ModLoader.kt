@@ -153,10 +153,11 @@ fun Project.configureCommonProject() {
 }
 
 private fun Project.createRawClassesElements() {
-    val rawClassesElements = configurations.register("rawClassesElements") {
-        isCanBeResolved = false
-        isCanBeConsumed = true
-    }
+    val rawClassesElements =
+        configurations.register("rawClassesElements") {
+            isCanBeResolved = false
+            isCanBeConsumed = true
+        }
     // "api" isn't created yet at the point loader/common projects are configured, so defer
     // wiring it in until the rest of this project's configuration has run.
     afterEvaluate {
