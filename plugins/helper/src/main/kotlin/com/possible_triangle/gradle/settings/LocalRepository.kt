@@ -47,29 +47,5 @@ fun Settings.localRepository(
         }
     }
 
-    if (multi) {
-        val group = dependencySub.substringBefore(":")
-        val artifactBase = dependencySub.substringAfter(":")
-
-        gradle.rootProject {
-            subprojects {
-                val suffix = suffixes.find { project.name.endsWith("-$it") }
-                if (suffix == "fabric" || suffix == "neoforge") {
-                    afterEvaluate {
-                        configurations.findByName("compileClasspath")?.exclude(
-                            mapOf("group" to group, "module" to "$artifactBase-$suffix"),
-                        )
-                        dependencies.add(
-                            "compileOnly",
-                            dependencies.project(
-                                mapOf("path" to ":$prefix-$suffix", "configuration" to "rawClassesElements"),
-                            ),
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     println("Included local repo $repo")
 }
