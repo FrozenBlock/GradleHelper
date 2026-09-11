@@ -10,6 +10,7 @@ import com.possible_triangle.gradle.mod
 import com.possible_triangle.gradle.modImpl
 import com.possible_triangle.gradle.property
 import com.possible_triangle.gradle.stringProperty
+import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -148,11 +149,55 @@ fun Project.configureCommonProject() {
     }
 
     createConfigurations(resolvable = false)
+
+    createCompiledClassesElements("common")
 }
+
+const val COMPILED_CLASSES_ELEMENTS = "compiledClassesElements"
+
+private fun Project.createCompiledClassesElements(loaderName: String) {
+    val compiledClassesElements =
+        configurations.register(COMPILED_CLASSES_ELEMENTS) {
+            isCanBeResolved = false
+            isCanBeConsumed = true
+            attributes {
+                attribute(LOADER_ATTRIBUTE, loaderName)
+            }
+        }
+    afterEvaluate {
+        val parent =
+            configurations.findByName("api")
+                ?: configurations.findByName("implementation")
+        parent?.let { compiledClassesElements.configure { extendsFrom(it) } }
+    }
+    artifacts {
+        add(compiledClassesElements.name, tasks.named<JavaCompile>("compileJava").flatMap { it.destinationDirectory })
+    }
+}
+
+fun checkLoaderCompatibility(
+    dependency: Project,
+    consumerLoader: String,
+) {
+    val producerLoader = dependency.declaredLoader ?: return
+    if (producerLoader == "common" || producerLoader == consumerLoader) return
+
+    throw GradleException(
+        "Project '${dependency.path}' targets the '$producerLoader' loader, so it cannot be a " +
+            "dependOn(...) target of a '$consumerLoader' project. Only common projects, or " +
+            "projects targeting the same loader, can be depended on this way.",
+    )
+}
+
+private const val DECLARED_LOADER_KEY = "io.github.mcgradleconventions.declaredLoader"
+
+val Project.declaredLoader: String?
+    get() = extensions.extraProperties.takeIf { it.has(DECLARED_LOADER_KEY) }?.get(DECLARED_LOADER_KEY) as? String
 
 val LOADER_ATTRIBUTE = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
 
 private fun Project.addLoaderAttribute(type: String) {
+    extensions.extraProperties[DECLARED_LOADER_KEY] = type
     addLoaderCompatibilityRule()
 
     listOf("apiElements", "runtimeElements", "sourcesElements").forEach { variant ->
@@ -216,7 +261,8 @@ fun Project.configureLoaderProject(
 
     lazyDependencies("compileOnly") {
         config.dependsOn.forEach {
-            add(it)
+            checkLoaderCompatibility(it, loaderName)
+            add(dependencies.project(path = it.path, configuration = COMPILED_CLASSES_ELEMENTS))
         }
     }
 
@@ -241,6 +287,8 @@ fun Project.configureLoaderProject(
         dependsOn(code)
         source(code)
     }
+
+    createCompiledClassesElements(loaderName)
 }
 
 enum class ModLoader {

@@ -3,6 +3,7 @@ package com.possible_triangle.gradle.test
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.extra
 import org.gradle.testfixtures.ProjectBuilder
@@ -36,6 +37,8 @@ fun createProjectWithoutPlugin(block: ProjectBuilder.() -> Unit = {}): Project {
     project.loadProperties()
     return project
 }
+
+fun Project.forceEvaluate(): Project = (this as ProjectInternal).evaluate()
 
 fun ProjectBuilder.withProjectDir(name: String) = withProjectDir(File("../../modules/test/src/main/resources/projects").resolve(name))
 

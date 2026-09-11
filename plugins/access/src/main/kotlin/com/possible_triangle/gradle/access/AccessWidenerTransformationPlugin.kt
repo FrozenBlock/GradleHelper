@@ -19,13 +19,13 @@ private fun Project.generatedAccessTransformer() = layout.buildDirectory.file("a
 private fun Project.generatedInterfaceInjectionData() = layout.buildDirectory.file("interface_injection.json").map { it.asFile }
 
 fun Project.generateAccessTransformer(from: Provider<File>): Pair<Provider<File>, TaskProvider<Task>> {
-    val output = generatedAccessTransformer()
+    val outputFile = generatedAccessTransformer()
 
     val remapper = detectMappings()
     val transformAccessWidener =
         tasks.register(TRANSFORM_TASK) {
             remapper.configureTask(this)
-            outputs.file(output)
+            outputs.file(outputFile)
             inputs.file(from)
 
             doLast {
@@ -39,7 +39,7 @@ fun Project.generateAccessTransformer(from: Provider<File>): Pair<Provider<File>
                 }
 
                 val transformed = classTweaker.toAccessTransformer(remapper)
-                output.get().writeText(transformed)
+                outputFile.get().writeText(transformed)
             }
         }
 
@@ -55,25 +55,29 @@ fun Project.generateAccessTransformer(from: Provider<File>): Pair<Provider<File>
         dependsOn(transformAccessWidener)
     }
 
+    val output = transformAccessWidener.map { outputFile.get() }
+
     return output to transformAccessWidener
 }
 
 fun Project.generateInterfaceInjectionData(from: Provider<File>): Pair<Provider<File>, TaskProvider<Task>> {
-    val output = generatedInterfaceInjectionData()
+    val outputFile = generatedInterfaceInjectionData()
 
     val remapper = detectMappings()
     val generateInterfaceInjectionData =
         tasks.register(INTERFACE_INJECTION_TASK) {
             remapper.configureTask(this)
-            outputs.file(output)
+            outputs.file(outputFile)
             inputs.file(from)
 
             doLast {
                 val classTweaker = parseClassTweaker(from.get())
                 val transformed = classTweaker.toInterfaceInjectionData(remapper)
-                output.get().writeText(transformed)
+                outputFile.get().writeText(transformed)
             }
         }
+
+    val output = generateInterfaceInjectionData.map { outputFile.get() }
 
     return output to generateInterfaceInjectionData
 }
