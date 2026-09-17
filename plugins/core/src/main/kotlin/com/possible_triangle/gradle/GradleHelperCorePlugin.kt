@@ -1,5 +1,6 @@
 package com.possible_triangle.gradle
 
+import com.possible_triangle.gradle.features.disableKotlinBuildToolsApi
 import com.possible_triangle.gradle.repositories.defaultRepositories
 import com.possible_triangle.gradle.upload.setupUpload
 import org.gradle.api.Plugin
@@ -14,6 +15,7 @@ class GradleHelperCorePlugin : Plugin<Project> {
     override fun apply(target: Project) = target.configure()
 
     private fun Project.configure() {
+        disableKotlinBuildToolsApi()
         loadEnv()
 
         logger.lifecycle("applying gradle helper ${BuildParameters.PLUGIN_VERSION} in ${project.name}")
