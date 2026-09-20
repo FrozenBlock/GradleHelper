@@ -29,7 +29,7 @@ interface UploadExtension {
 }
 
 internal open class UploadExtensionImpl(
-    project: Project,
+    private val project: Project,
 ) : UploadExtension {
     override val modrinth = ModrinthExtensionImpl(project)
     override val curseforge = CurseForgeExtensionImpl(project)
@@ -54,6 +54,14 @@ internal open class UploadExtensionImpl(
         modrinth.setup()
         curseforge.setup()
         maven.setup()
+        wireShadowJar()
+    }
+
+    private fun wireShadowJar() {
+        project.tasks.findByName("shadowJar")?.let { shadow ->
+            project.tasks.findByName("curseforge")?.dependsOn(shadow)
+            project.tasks.findByName("modrinth")?.dependsOn(shadow)
+        }
     }
 }
 

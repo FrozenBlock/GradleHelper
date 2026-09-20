@@ -65,7 +65,7 @@ internal class CurseForgeExtensionImpl(
             project.tasks.register<TaskPublishCurseForge>("curseforge") {
                 apiToken = token.get()
 
-                upload(projectId.get(), file.get()).apply {
+                upload(projectId.get(), file).apply {
                     changelogType = Constants.CHANGELOG_MARKDOWN
                     changelog = this@CurseForgeExtensionImpl.changelog.orNull
                         ?: error("no changelog provided, unable to upload to curseforge")
