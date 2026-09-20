@@ -1,6 +1,6 @@
 package com.possible_triangle.gradle
 
-import com.possible_triangle.gradle.upload.SimpleVersionStrategy
+import com.possible_triangle.gradle.upload.FrozenBlockVersionStrategy
 import com.possible_triangle.gradle.upload.VersionStrategy
 import com.possible_triangle.gradle.upload.parseVersionStrategy
 import org.gradle.api.Project
@@ -123,7 +123,7 @@ fun Project.createModExtension(): ModExtension {
     configureDefault(
         stringProperty("version_strategy")
             .map(::parseVersionStrategy)
-            .orElse(SimpleVersionStrategy()),
+            .orElse(FrozenBlockVersionStrategy()),
     ) { versionStrategy }
 
     return mod

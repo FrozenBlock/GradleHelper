@@ -24,6 +24,12 @@ mod {
 
 ## Default Strategy
 
+`version_strategy = frozenblock`
+
+The `FrozenBlockVersionStrategy` is the default. See [FrozenBlock Strategy](#frozenblock-strategy) below for details.
+
+## Simple Strategy
+
 `version_strategy = simple`
 
 The `SimpleStrategy` will strip the version metadata (everything after the plus sign) from everything except the `metadataVersion`.
