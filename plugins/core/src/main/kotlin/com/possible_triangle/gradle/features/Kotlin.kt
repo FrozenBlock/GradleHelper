@@ -23,8 +23,10 @@ fun Project.disableKotlinBuildToolsApi() {
     tasks.withType(AbstractKotlinCompileTool::class.java).configureEach {
         try {
             @Suppress("UNCHECKED_CAST")
-            val runViaBta = javaClass.getMethod($$"getRunViaBuildToolsApi$kotlin_gradle_plugin_common")
-                .invoke(this) as? Property<Boolean>
+            val runViaBta =
+                javaClass
+                    .getMethod($$"getRunViaBuildToolsApi$kotlin_gradle_plugin_common")
+                    .invoke(this) as? Property<Boolean>
             runViaBta?.set(false)
         } catch (_: ReflectiveOperationException) {
         }
