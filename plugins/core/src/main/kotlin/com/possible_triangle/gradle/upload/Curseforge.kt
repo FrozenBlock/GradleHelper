@@ -72,7 +72,7 @@ internal class CurseForgeExtensionImpl(
                     releaseType = this@CurseForgeExtensionImpl.releaseType.get()
                     modLoaders.get().forEach { addModLoader(it.displayName()) }
                     minecraftVersions.get().forEach { addGameVersion(it) }
-                    displayName = versionName.get()
+                    displayName = this@CurseForgeExtensionImpl.displayName.get()
 
                     environment.orNull?.let {
                         val value = it.lowercase().capitalized()

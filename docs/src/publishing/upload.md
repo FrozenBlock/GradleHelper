@@ -26,6 +26,8 @@ upload {
 
     forEach {
         versionName = "Some Other Version Name ${mod.version.get()}"
+        // curseforge display name, defaults to versionName
+        displayName = "Some Other Display Name ${mod.version.get()}"
     }
 }
 ```

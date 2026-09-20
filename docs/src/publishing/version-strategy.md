@@ -15,7 +15,9 @@ mod {
 |-----------------|---------------------------------------------------------------------------------------------|
 | modVersion      | replaces `mod_version` in [templates](/general#mod-properties) such as `neoforge.mods.toml` |
 | metadataTag     | tag property written to `build/release.json`                                                |
-| uploadVersion   | version published to curseforge/modrinth                                                    |
+| uploadVersion   | version published to curseforge/modrinth (`version_number` on modrinth, title)              |
+| versionName     | display name on modrinth (`name` field, subtitle)                                           |
+| displayName     | display name on curseforge (defaults to `versionName`)                                      |
 | artifactVersion | version of the maven artifact being published                                               |
 | artifactName    | name of the maven artifact being published                                                  |
 | baseName        | base name of the JAR file being created                                                     |
@@ -195,3 +197,26 @@ This strategy makes sense for projects that share the same versions between diff
     | artifactVersion | `1.0.0-prerelease`                 |
     | artifactName    | `mod_id-neoforge`                  |
     | baseName        | `mod_id-neoforge-1.0.0-prerelease` |
+
+## FrozenBlock Strategy
+
+`version_strategy = frozenblock`
+
+Used by FrozenBlock mods. The modrinth `version_number` (title) and the curseforge display name
+use the full `[mod_version]-mc[minecraft_version]-[loader]` format so that fabric & neoforge
+uploads are distinguishable, while the modrinth `name` (subtitle) stays as the plain mod version.
+
+### Field Outputs
+
+=== "mod.version = "3.0", minecraft = "26.2", loader = "fabric""
+
+    | Field           | Value                  |
+    |-----------------|------------------------|
+    | modVersion      | `3.0`                  |
+    | metadataTag     | `3.0`                  |
+    | uploadVersion   | `3.0-mc26.2-fabric`    |
+    | versionName     | `3.0`                  |
+    | displayName     | `3.0-mc26.2-fabric`    |
+    | artifactVersion | `3.0-mc26.2`           |
+    | artifactName    | `mod_id`               |
+    | baseName        | `mod_id-3.0-mc26.2`    |

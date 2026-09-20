@@ -20,6 +20,7 @@ interface AbstractUploadExtension<TDependencies : DependencyBuilder> {
     val minecraftVersions: ListProperty<String>
     val version: Property<String>
     val versionName: Property<String>
+    val displayName: Property<String>
     val changelog: Property<String>
     val releaseType: Property<String>
 
@@ -49,9 +50,15 @@ internal abstract class AbstractUploadExtensionImpl<TDependencies : DependencyBu
     override val version = project.objects.property(project.uploadVersionConvention())
     override val versionName =
         project.objects.property(
-            modLoaders.map { loaders ->
-                "${loaders.joinToString(", ") { it.name.lowercase().capitalized() }} ${version.get()}"
-            },
+            project.strategyVersionNameConvention().orElse(
+                modLoaders.map { loaders ->
+                    "${loaders.joinToString(", ") { it.name.lowercase().capitalized() }} ${version.get()}"
+                },
+            ),
+        )
+    override val displayName =
+        project.objects.property(
+            project.strategyDisplayNameConvention().orElse(versionName),
         )
     override val changelog = project.objects.property(env["CHANGELOG"])
     override val releaseType = project.objects.property(project.mod.releaseType.orElse("release"))
